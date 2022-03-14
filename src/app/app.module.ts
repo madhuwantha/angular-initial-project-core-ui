@@ -45,6 +45,14 @@ import {
 } from '@coreui/angular';
 
 import { IconModule, IconSetService } from '@coreui/icons-angular';
+import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
+import {AuthGuard} from "./helpers/auth-gard";
+import {HTTP_INTERCEPTORS} from "@angular/common/http";
+import {AuthInterceptor} from "./helpers/auth.interceptor";
+import {ErrorInterceptor} from "./helpers/error.interceptor";
+import {SnackbarModule} from "ngx-snackbar";
+import {ToastrModule} from "ngx-toastr";
+import {NgxSpinnerModule} from "ngx-spinner";
 
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
   suppressScrollX: true,
@@ -57,7 +65,7 @@ const APP_CONTAINERS = [
 ];
 
 @NgModule({
-  declarations: [AppComponent, ...APP_CONTAINERS],
+  declarations: [AppComponent, ...APP_CONTAINERS, ConfirmationDialogComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -85,8 +93,13 @@ const APP_CONTAINERS = [
     BadgeModule,
     ListGroupModule,
     CardModule,
+    ToastrModule.forRoot(),
+    SnackbarModule.forRoot(),
+    BrowserAnimationsModule,
+    NgxSpinnerModule
   ],
   providers: [
+    AuthGuard,
     {
       provide: LocationStrategy,
       useClass: HashLocationStrategy,
@@ -95,6 +108,8 @@ const APP_CONTAINERS = [
       provide: PERFECT_SCROLLBAR_CONFIG,
       useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG,
     },
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     IconSetService,
     Title
   ],
